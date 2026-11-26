@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LumièreTree · 开源 3D 粒子圣诞树工坊</title>
+  <link rel="stylesheet" href="css/studio.css" />
+</head>
+<body>
+  <!-- Full-bleed 3D Canvas Stage -->
+  <div id="stageWrap">
+    <canvas id="treeCanvas"></canvas>
+  </div>
+
+  <!-- Live WYSIWYG Gift Greeting Header -->
+  <header class="gift-overlay" id="giftOverlay">
+    <div class="gift-to" id="previewTo">TO · 亲爱的你</div>
+    <h1 class="gift-title" id="previewTitle">Merry Christmas</h1>
+    <p class="gift-subtitle" id="previewSubtitle">愿星河璀璨，岁岁平安，圣诞快乐 ✨</p>
+  </header>
+
+  <!-- Floating Bottom Stage Controls -->
+  <div class="stage-footer">
+    <div class="gift-from" id="previewFrom">From 圣诞老人 ✦</div>
+    <div class="stage-pill">
+      <button class="pill-btn" id="stageScatterBtn">✨ 散开星河</button>
+      <button class="pill-btn" id="stageTextBtn">💬 粒子文字</button>
+      <button class="pill-btn" id="stageReplayBtn">🔄 重播汇聚</button>
+      <button class="pill-btn" id="stageMusicBtn">🎵 试听音乐盒</button>
+    </div>
+    <div class="stage-hint">拖拽旋转 · 滚轮缩放 · 点击绽放烟花 · 双击散开星河</div>
+  </div>
+
+  <!-- Gift Unwrap Preview Overlay (used in Preview Mode & Shared Links) -->
+  <div class="unwrap-overlay" id="studioUnwrapOverlay">
+    <div class="unwrap-card">
+      <div class="unwrap-icon">🎁</div>
+      <div class="unwrap-to" id="unwrapTo">TO · 亲爱的你</div>
+      <div class="unwrap-heading">你收到一份圣诞惊喜</div>
+      <div class="unwrap-desc" id="unwrapDesc">来自 圣诞老人 的专属星河圣诞树</div>
+      <button class="unwrap-btn" id="btnStudioUnwrap">✨ 点击开启礼物</button>
+    </div>
+  </div>
+
+  <!-- Reopen Studio Button (shown in Preview or Collapsed mode) -->
+  <button class="reopen-btn" id="reopenPanelBtn">🎨 返回编辑</button>
+
+  <!-- Right Studio Customizer Panel -->
+  <aside class="studio-panel" id="studioPanel">
+    <div class="panel-header">
+      <div class="brand">
+        <div class="brand-logo">🎄</div>
+        <div>
+          <div class="brand-title">LumièreTree</div>
+          <div class="brand-sub">开源 3D 粒子圣诞树工坊 · MIT</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="btnRandomize" title="随机灵感盲盒">🎲</button>
+        <button class="icon-btn" id="btnCollapse" title="收起编辑面板">✕</button>
+      </div>
+    </div>
+
+    <!-- 5 Category Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="colors"><span class="t-ico">🎨</span>配色</button>
+      <button class="tab-btn" data-tab="particles"><span class="t-ico">✨</span>粒子</button>
+      <button class="tab-btn" data-tab="scene"><span class="t-ico">🎄</span>组合</button>
+      <button class="tab-btn" data-tab="animation"><span class="t-ico">🎬</span>动画</button>
+      <button class="tab-btn" data-tab="gift"><span class="t-ico">🎁</span>礼物</button>
+    </nav>
+
+    <div class="panel-body">
+      <!-- TAB 1: COLORS -->
+      <section class="tab-pane active" id="tab-colors">
+        <div class="section-label">精选主题配色</div>
+        <div class="theme-grid" id="themeGrid"></div>
+
+        <div class="section-label">自由微调颜色</div>
+        <div class="color-grid">
+          <label class="color-item"><span>树体主色</span><input type="color" id="colPrimary" /></label>
+          <label class="color-item"><span>流光辅色</span><input type="color" id="colSecondary" /></label>
+          <label class="color-item"><span>挂饰点缀</span><input type="color" id="colAccent" /></label>
+          <label class="color-item"><span>树顶星光</span><input type="color" id="colStar" /></label>
+          <label class="color-item"><span>夜空顶色</span><input type="color" id="colBgTop" /></label>
+          <label class="color-item"><span>夜空底色</span><input type="color" id="colBgBottom" /></label>
+        </div>
+      </section>
+
+      <!-- TAB 2: PARTICLES -->
+      <section class="tab-pane" id="tab-particles">
+        <div class="section-label">粒子形态</div>
+        <div class="pill-grid" id="particleStyleGrid"></div>
+
+        <div class="section-label">粒子质感调节</div>
+        <div class="slider-row">
+          <div class="slider-head"><span>粒子密度</span><span class="slider-val" id="valCount">3000</span></div>
+          <input type="range" id="rngCount" min="1000" max="5500" step="100" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head"><span>粒子大小</span><span class="slider-val" id="valSize">1.05x</span></div>
+          <input type="range" id="rngSize" min="0.55" max="2.0" step="0.05" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head"><span>辉光强度 (Bloom)</span><span class="slider-val" id="valGlow">1.15</span></div>
+          <input type="range" id="rngGlow" min="0.3" max="1.8" step="0.05" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head"><span>星光闪烁频率</span><span class="slider-val" id="valTwinkle">1.10</span></div>
+          <input type="range" id="rngTwinkle" min="0" max="2.5" step="0.1" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-head"><span>梦幻拖尾残影</span><span class="slider-val" id="valTrail">0.25</span></div>
+          <input type="range" id="rngTrail" min="0" max="0.8" step="0.05" />
+        </div>
+      </section>
+
+      <!-- TAB 3: SCENE COMBINATIONS -->
+      <section class="tab-pane" id="tab-scene">
+        <div class="section-label">树体几何结构</div>
+        <div class="pill-grid" id="treeShapeGrid"></div>
+
+        <div class="section-label">树顶发光造型</div>
+        <div class="pill-grid" id="topperStyleGrid"></div>
+
+        <div class="section-label">自由组合特效</div>
+        <div class="toggle-list">
+          <label class="toggle-row">
+            <span>🎀 双螺旋流光丝带</span>
+            <span class="switch"><input type="checkbox" id="chkRibbon" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>⭐ 树顶辉光圣星</span>
+            <span class="switch"><input type="checkbox" id="chkStarTopper" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🔮 流光圣诞挂饰球</span>
+            <span class="switch"><input type="checkbox" id="chkOrnaments" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>❄️ 3D 立体飘雪</span>
+            <span class="switch"><input type="checkbox" id="chkSnow" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🌌 地面星河涟漪</span>
+            <span class="switch"><input type="checkbox" id="chkGroundRipple" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🌠 许愿流星划过</span>
+            <span class="switch"><input type="checkbox" id="chkShootingStars" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🌈 极光夜幕氛围</span>
+            <span class="switch"><input type="checkbox" id="chkAurora" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🎆 点击屏幕绽放烟花</span>
+            <span class="switch"><input type="checkbox" id="chkFireworks" /><span class="switch-track"></span></span>
+          </label>
+        </div>
+
+        <div class="section-label">悬浮记忆相框 (可选 · 自动压缩内嵌)</div>
+        <div class="photo-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span style="font-size:12px;color:var(--text-muted);">上传最多 6 张照片环绕圣诞树</span>
+            <button class="btn-sec" id="btnAddPhoto">+ 添加照片</button>
+            <input type="file" id="photoInput" accept="image/*" multiple hidden />
+          </div>
+          <div class="photo-thumbs" id="photoThumbs"></div>
+        </div>
+      </section>
+
+      <!-- TAB 4: ANIMATION -->
+      <section class="tab-pane" id="tab-animation">
+        <div class="section-label">主动画模式</div>
+        <div class="pill-grid" id="animModeGrid"></div>
+
+        <div class="section-label">动态控制</div>
+        <div class="slider-row">
+          <div class="slider-head"><span>旋转与流动速度</span><span class="slider-val" id="valSpeed">1.00x</span></div>
+          <input type="range" id="rngSpeed" min="0" max="2.5" step="0.05" />
+        </div>
+        <div class="toggle-list">
+          <label class="toggle-row">
+            <span>🎥 电影感镜头微摇曳</span>
+            <span class="switch"><input type="checkbox" id="chkCameraSway" /><span class="switch-track"></span></span>
+          </label>
+        </div>
+
+        <div class="section-label">粒子文字变形 (3D Text Morph)</div>
+        <div class="field">
+          <label>变形目标文字（支持中英文、名字或年份）</label>
+          <input type="text" id="inpMorphText" placeholder="例如：Merry Xmas / I ♥ U / 2027" maxlength="18" />
+        </div>
+
+        <div class="section-label">交互演示</div>
+        <div class="pill-grid">
+          <button class="opt-pill" id="btnAnimGather">🌌 重播星海汇聚</button>
+          <button class="opt-pill" id="btnAnimScatter">✨ 切换散开/汇聚</button>
+          <button class="opt-pill" id="btnAnimText" style="grid-column:span 2;">💬 切换 3D 粒子文字变形</button>
+        </div>
+      </section>
+
+      <!-- TAB 5: GIFT PERSONALIZATION -->
+      <section class="tab-pane" id="tab-gift">
+        <div class="section-label">圣诞祝福定制</div>
+        <div class="toggle-list" style="margin-bottom:12px;">
+          <label class="toggle-row">
+            <span>💌 显示祝福文字</span>
+            <span class="switch"><input type="checkbox" id="chkShowText" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🎁 拆礼盒开场仪式 (点击自动放音乐)</span>
+            <span class="switch"><input type="checkbox" id="chkUnwrapIntro" /><span class="switch-track"></span></span>
+          </label>
+          <label class="toggle-row">
+            <span>🎵 音乐节拍实时律动</span>
+            <span class="switch"><input type="checkbox" id="chkAudioReactive" /><span class="switch-track"></span></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>收件人 (To)</label>
+          <input type="text" id="inpRecipient" placeholder="例如：亲爱的你" maxlength="32" />
+        </div>
+        <div class="field">
+          <label>祝福主标题</label>
+          <input type="text" id="inpTitle" placeholder="Merry Christmas" maxlength="48" />
+        </div>
+        <div class="field">
+          <label>祝福副标题 / 寄语</label>
+          <input type="text" id="inpSubtitle" placeholder="愿星河璀璨，岁岁平安 ✨" maxlength="80" />
+        </div>
+        <div class="field">
+          <label>寄件人 (From)</label>
+          <input type="text" id="inpSender" placeholder="例如：你的好朋友" maxlength="32" />
+        </div>
+        <div class="field">
+          <label>标题字体风格</label>
+          <select id="selFontStyle"></select>
+        </div>
+
+        <div class="section-label">内置离线八音盒音乐 (零外部依赖)</div>
+        <div class="field">
+          <select id="selMusic"></select>
+        </div>
+
+        <div class="section-label">分享与导出媒体</div>
+        <div class="pill-grid">
+          <button class="opt-pill" id="btnSavePoster">📸 保存高清海报</button>
+          <button class="opt-pill" id="btnRecordVideo">🎬 录制 8s 视频</button>
+          <button class="opt-pill" id="btnShareLink" style="grid-column:span 2;">🔗 生成专属分享链接 (URL)</button>
+        </div>
+
+        <div class="section-label">配置导入 / 导出</div>
+        <div class="pill-grid">
+          <button class="opt-pill" id="btnExportJson">💾 导出 JSON 配置</button>
+          <button class="opt-pill" id="btnImportJson">📂 导入 JSON 配置</button>
+          <input type="file" id="jsonInput" accept=".json,application/json" hidden />
+        </div>
+      </section>
+    </div>
+
+    <!-- Sticky Export Bar -->
+    <div class="panel-footer">
+      <button class="btn-primary" id="btnExportHtml">🎁 一键导出独立 HTML 圣诞礼物</button>
+      <div class="footer-row">
+        <button class="btn-sec" id="btnPreviewGift">👁️ 预览礼物</button>
+        <button class="btn-sec" id="btnCopyHtml">📋 复制源码</button>
+        <button class="btn-sec" id="btnReset">↺ 恢复默认</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/presets.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/studio.js"></script>
+</body>
+</html>
