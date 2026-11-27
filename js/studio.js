@@ -3,6 +3,8 @@
  */
 (function () {
   const P = window.LumierePresets;
+  const Icons = window.LumiereIcons;
+  Icons.render();
 
   // UTF-8 safe Base64URL helpers for #cfg= share links
   function encodeConfigHash(cfg) {
@@ -92,7 +94,7 @@
     titleEl.style.filter = 'drop-shadow(0 0 18px ' + c.secondary + '66)';
     subEl.textContent = g.subtitle || '';
     subEl.style.display = g.subtitle ? '' : 'none';
-    fromEl.textContent = (g.showText && g.sender) ? ('From ' + g.sender + ' ✦') : '';
+    fromEl.textContent = (g.showText && g.sender) ? ('From ' + g.sender) : '';
     fromEl.style.display = (g.showText && g.sender) ? '' : 'none';
   }
 
@@ -141,6 +143,10 @@
       btn.className = 'opt-pill';
       btn.dataset.val = item.id;
       btn.textContent = item.label;
+      if (item.icon) {
+        btn.dataset.icon = item.icon;
+        btn.insertAdjacentHTML('afterbegin', Icons.svg(item.icon));
+      }
       btn.addEventListener('click', () => onSelect(item.id));
       el.appendChild(btn);
     });
@@ -353,7 +359,7 @@
     photoInput.value = '';
     renderPhotoThumbs();
     applyUpdate();
-    if (files.length) showToast('🖼️ 已添加环绕记忆相框（导出 HTML 时自动内嵌）');
+    if (files.length) showToast('已添加环绕记忆相框（导出 HTML 时自动内嵌）');
   });
 
   // Stage & Animation Controls
@@ -364,15 +370,15 @@
 
   function syncMorphUI() {
     const mode = engine.getMorphMode();
-    stageScatterBtn.textContent = mode === 'scatter' ? '🎄 汇聚圣诞树' : '✨ 散开星河';
+    Icons.set(stageScatterBtn, mode === 'scatter' ? 'christmas-tree' : 'sparkles', mode === 'scatter' ? '汇聚圣诞树' : '散开星河');
     stageScatterBtn.classList.toggle('active', mode === 'scatter');
-    stageTextBtn.textContent = mode === 'text' ? '🎄 变回圣诞树' : '💬 粒子文字';
+    Icons.set(stageTextBtn, mode === 'text' ? 'christmas-tree' : 'typography', mode === 'text' ? '变回圣诞树' : '粒子文字');
     stageTextBtn.classList.toggle('active', mode === 'text');
   }
 
   function syncMusicBtn() {
     const playing = music.isPlaying();
-    stageMusicBtn.textContent = playing ? '🔊 暂停音乐' : '🎵 试听音乐盒';
+    Icons.set(stageMusicBtn, playing ? 'player-pause' : 'player-play', playing ? '暂停音乐' : '试听音乐盒');
     stageMusicBtn.classList.toggle('active', playing);
     stageMusicBtn.style.display = config.gift.music === 'none' ? 'none' : '';
   }
@@ -454,19 +460,19 @@
   });
   document.getElementById('btnPreviewGift').addEventListener('click', () => {
     document.body.classList.add('preview-mode');
-    reopenBtn.textContent = '🎨 返回编辑';
+    Icons.set(reopenBtn, 'palette', '返回编辑');
     if (config.gift.unwrapIntro !== false) {
       openUnwrapExperience();
     } else {
       engine.replayGather();
       syncMorphUI();
-      showToast('👁️ 正在预览圣诞礼物效果，点击右上角可返回编辑');
+      showToast('正在预览圣诞礼物效果，点击右上角可返回编辑');
     }
   });
   reopenBtn.addEventListener('click', () => {
     studioUnwrap.classList.remove('active', 'closing');
     document.body.classList.remove('panel-hidden', 'preview-mode');
-    reopenBtn.textContent = '🎨 返回编辑';
+    Icons.set(reopenBtn, 'palette', '返回编辑');
   });
 
   // Save High-Res Poster PNG (Canvas + Glowing Greeting Text)
@@ -508,7 +514,7 @@
       if (config.gift.sender) {
         g.fillStyle = 'rgba(255,255,255,0.72)';
         g.font = '400 ' + Math.round(14 * dprScale) + 'px -apple-system, "PingFang SC", sans-serif';
-        g.fillText('From ' + config.gift.sender + ' ✦', w / 2, h - 34 * dprScale);
+        g.fillText('From ' + config.gift.sender, w / 2, h - 34 * dprScale);
       }
       g.restore();
     }
@@ -517,7 +523,7 @@
     a.href = out.toDataURL('image/png');
     a.download = 'lumiere-christmas-poster.png';
     a.click();
-    showToast('📸 高清圣诞海报 PNG 已保存！');
+    showToast('高清圣诞海报 PNG 已保存！');
   });
 
   // Record 8-Second Loop Video (WebM)
@@ -526,7 +532,7 @@
   btnRecord.addEventListener('click', () => {
     if (isRecording) return;
     if (typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
-      showToast('⚠️ 当前浏览器不支持内置录屏，请使用 Chrome / Edge');
+      showToast('当前浏览器不支持内置录屏，请使用 Chrome / Edge');
       return;
     }
     try {
@@ -540,7 +546,7 @@
       recorder.onstop = () => {
         isRecording = false;
         btnRecord.classList.remove('recording');
-        btnRecord.textContent = '🎬 录制 8s 视频';
+        Icons.set(btnRecord, 'video', '录制 8s 视频');
         const blob = new Blob(chunks, { type: mimeType });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -548,20 +554,20 @@
         a.download = 'lumiere-christmas-tree.webm';
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 1500);
-        showToast('🎬 8 秒高清圣诞树视频已导出！');
+        showToast('8 秒高清圣诞树视频已导出！');
       };
 
       isRecording = true;
       let left = 8;
       btnRecord.classList.add('recording');
-      btnRecord.textContent = '🔴 录制中 ' + left + 's';
+      Icons.set(btnRecord, 'video', '录制中 ' + left + 's');
       recorder.start();
-      showToast('🎬 开始录制 8 秒圣诞树视频，可以旋转或点击烟花');
+      showToast('开始录制 8 秒圣诞树视频，可以旋转或点击烟花');
 
       const iv = setInterval(() => {
         left -= 1;
         if (left > 0) {
-          btnRecord.textContent = '🔴 录制中 ' + left + 's';
+          Icons.set(btnRecord, 'video', '录制中 ' + left + 's');
         } else {
           clearInterval(iv);
           if (recorder.state !== 'inactive') recorder.stop();
@@ -569,7 +575,7 @@
       }, 1000);
     } catch {
       isRecording = false;
-      showToast('⚠️ 录制初始化失败，请重试');
+      showToast('录制初始化失败，请重试');
     }
   });
 
@@ -581,10 +587,10 @@
     try {
       await navigator.clipboard.writeText(shareUrl);
       const photoNote = config.photos.length ? '（相框照片请用离线 HTML 导出）' : '';
-      showToast('🔗 专属分享链接已复制！' + photoNote);
+      showToast('专属分享链接已复制！' + photoNote);
     } catch {
       window.location.hash = 'cfg=' + encoded;
-      showToast('🔗 已更新地址栏为专属分享链接，直接复制即可');
+      showToast('已更新地址栏为专属分享链接，直接复制即可');
     }
   });
 
@@ -614,7 +620,7 @@
     config.animation.mode = anim;
     syncControlsFromConfig();
     applyUpdate({ forceSprites: true, forceGeometry: true, replayGather: true });
-    showToast('🎲 已切换灵感风格：' + theme.name);
+    showToast('已切换灵感风格：' + theme.name);
   });
 
   // Reset to Default
@@ -622,13 +628,13 @@
     config = P.cloneConfig(P.DEFAULT_CONFIG);
     syncControlsFromConfig();
     applyUpdate({ forceSprites: true, forceGeometry: true, replayGather: true });
-    showToast('↺ 已恢复默认圣诞树配置');
+    showToast('已恢复默认圣诞树配置');
   });
 
   // Export Standalone HTML Gift
   document.getElementById('btnExportHtml').addEventListener('click', () => {
     window.LumiereExporter.downloadHTML(config);
-    showToast('🎁 独立 HTML 圣诞礼物已导出！可直接发给好友双击打开');
+    showToast('独立 HTML 圣诞礼物已导出！可直接发给好友双击打开');
   });
 
   // Copy HTML Source
@@ -636,9 +642,9 @@
     const html = window.LumiereExporter.generateHTML(config);
     try {
       await navigator.clipboard.writeText(html);
-      showToast('📋 完整独立 HTML 源码已复制到剪贴板');
+      showToast('完整独立 HTML 源码已复制到剪贴板');
     } catch {
-      showToast('⚠️ 剪贴板权限受限，请直接使用「一键导出」按钮');
+      showToast('剪贴板权限受限，请直接使用「一键导出」按钮');
     }
   });
 
@@ -651,7 +657,7 @@
     a.download = 'lumiere-tree-preset.json';
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast('💾 预设配置 JSON 已导出');
+    showToast('预设配置 JSON 已导出');
   });
 
   const jsonInput = document.getElementById('jsonInput');
@@ -666,9 +672,9 @@
         config = Object.assign(P.cloneConfig(P.DEFAULT_CONFIG), parsed);
         syncControlsFromConfig();
         applyUpdate({ forceSprites: true, forceGeometry: true, replayGather: true });
-        showToast('📂 预设配置已导入');
+        showToast('预设配置已导入');
       } catch {
-        showToast('⚠️ JSON 文件格式无效');
+        showToast('JSON 文件格式无效');
       }
     };
     reader.readAsText(file);
@@ -716,7 +722,7 @@
   // If opened via #cfg=... share link, enter Gift Mode automatically!
   if (openedViaShareLink) {
     document.body.classList.add('preview-mode');
-    reopenBtn.textContent = '🎄 我也要做一个';
+    Icons.set(reopenBtn, 'christmas-tree', '我也要做一个');
     if (config.gift.unwrapIntro !== false) {
       openUnwrapExperience();
     }

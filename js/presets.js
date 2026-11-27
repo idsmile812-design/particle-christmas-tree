@@ -128,10 +128,10 @@ window.LumierePresets = (function () {
   ];
 
   const TOPPER_STYLES = [
-    { id: 'star', label: '⭐ 经典圣星' },
-    { id: 'heart', label: '💖 璀璨爱心' },
-    { id: 'snowflake', label: '❄️ 冰晶雪花' },
-    { id: 'crown', label: '👑 星耀皇冠' }
+    { id: 'star', label: '经典圣星', icon: 'star' },
+    { id: 'heart', label: '璀璨爱心', icon: 'heart' },
+    { id: 'snowflake', label: '冰晶雪花', icon: 'snowflake' },
+    { id: 'crown', label: '星耀皇冠', icon: 'crown' }
   ];
 
   const ANIMATION_MODES = [
@@ -198,7 +198,7 @@ window.LumierePresets = (function () {
       unwrapIntro: true,
       audioReactive: true,
       title: 'Merry Christmas',
-      subtitle: '愿星河璀璨，岁岁平安，圣诞快乐 ✨',
+      subtitle: '愿星河璀璨，岁岁平安，圣诞快乐',
       recipient: '亲爱的你',
       sender: '圣诞老人',
       fontStyle: 'elegant',

@@ -42,6 +42,7 @@ window.LumiereExporter = (function () {
 
     const engineSource = window.createParticleTreeEngine.toString();
     const audioSource = window.createMusicBox.toString();
+    const iconSource = window.createLumiereIcons.toString();
     const configJson = safeJson(config);
     const titleFont = fontStack(gift.fontStyle);
 
@@ -260,6 +261,39 @@ window.LumiereExporter = (function () {
       color: #ffffff;
       box-shadow: 0 0 14px ${colors.secondary || '#ffd452'}44;
     }
+    .ui-icon {
+      width: 14px;
+      height: 14px;
+      flex: 0 0 auto;
+      transition: transform 0.2s ease;
+    }
+    .unwrap-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+    .unwrap-btn .ui-icon { width: 17px; height: 17px; }
+    .unwrap-icon .ui-icon {
+      width: 38px;
+      height: 38px;
+      color: #092019;
+      stroke-width: 1.55;
+    }
+    .ctrl-btn:focus-visible,
+    .unwrap-btn:focus-visible {
+      outline: 2px solid ${colors.secondary || '#ffd452'};
+      outline-offset: 2px;
+    }
+    @media (hover: hover) {
+      #btnReplay:hover .ui-icon { transform: rotate(-35deg); }
+      #btnMusic:hover .ui-icon,
+      .unwrap-btn:hover .ui-icon { transform: scale(1.14); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ui-icon { transition: none; }
+      .unwrap-card { animation: none; }
+    }
     .hint {
       font-size: 11px;
       color: rgba(255, 255, 255, 0.42);
@@ -276,11 +310,11 @@ window.LumiereExporter = (function () {
 
   ${unwrapIntro ? `<div class="unwrap-overlay" id="unwrapOverlay">
     <div class="unwrap-card">
-      <div class="unwrap-icon">🎁</div>
+      <div class="unwrap-icon" data-icon="gift"></div>
       ${recipientText ? `<div class="unwrap-to">TO · ${recipientText}</div>` : ''}
       <div class="unwrap-heading">你收到一份圣诞惊喜</div>
       <div class="unwrap-desc">${senderText ? ('来自 ' + senderText + ' 的专属星河圣诞树') : '一棵为你定制的 3D 发光星河圣诞树'}</div>
-      <button class="unwrap-btn" id="btnUnwrap">✨ 点击开启礼物</button>
+      <button class="unwrap-btn" id="btnUnwrap" data-icon="sparkles">点击开启礼物</button>
     </div>
   </div>` : ''}
 
@@ -291,12 +325,12 @@ window.LumiereExporter = (function () {
   </header>` : ''}
 
   <footer class="gift-footer">
-    ${showText && senderText ? `<div class="gift-from">From ${senderText} ✦</div>` : ''}
+    ${showText && senderText ? `<div class="gift-from">From ${senderText}</div>` : ''}
     <div class="gift-controls">
-      <button class="ctrl-btn" id="btnScatter" title="散开为星河或汇聚为圣诞树">✨ 散开星河</button>
-      <button class="ctrl-btn" id="btnTextMorph" title="粒子变形成发光文字">💬 粒子文字</button>
-      <button class="ctrl-btn" id="btnReplay" title="重播汇聚动画">🔄 重播</button>
-      ${hasMusic ? `<button class="ctrl-btn" id="btnMusic" title="播放或暂停八音盒音乐">🎵 播放音乐</button>` : ''}
+      <button class="ctrl-btn" id="btnScatter" data-icon="sparkles" title="散开为星河或汇聚为圣诞树">散开星河</button>
+      <button class="ctrl-btn" id="btnTextMorph" data-icon="typography" title="粒子变形成发光文字">粒子文字</button>
+      <button class="ctrl-btn" id="btnReplay" data-icon="refresh" title="重播汇聚动画">重播</button>
+      ${hasMusic ? `<button class="ctrl-btn" id="btnMusic" data-icon="player-play" title="播放或暂停八音盒音乐">播放音乐</button>` : ''}
     </div>
     <div class="hint">拖拽旋转 · 滚轮缩放 · 点击绽放烟花 · 双击散开星河</div>
   </footer>
@@ -305,8 +339,11 @@ window.LumiereExporter = (function () {
     const CONFIG = ${configJson};
     const createMusicBox = ${audioSource};
     const createParticleTreeEngine = ${engineSource};
+    const createLumiereIcons = ${iconSource};
 
     (function () {
+      const Icons = createLumiereIcons();
+      Icons.render();
       const canvas = document.getElementById('treeCanvas');
       const engine = createParticleTreeEngine(canvas, CONFIG);
       engine.start();
@@ -328,15 +365,15 @@ window.LumiereExporter = (function () {
 
       function syncMusicUI(playing) {
         if (!btnMusic) return;
-        btnMusic.textContent = playing ? '🔊 音乐播放中' : '🎵 播放音乐';
+        Icons.set(btnMusic, playing ? 'volume' : 'player-play', playing ? '音乐播放中' : '播放音乐');
         btnMusic.classList.toggle('active', playing);
       }
 
       function syncMorphUI() {
         const mode = engine.getMorphMode();
-        btnScatter.textContent = mode === 'scatter' ? '🎄 汇聚圣诞树' : '✨ 散开星河';
+        Icons.set(btnScatter, mode === 'scatter' ? 'christmas-tree' : 'sparkles', mode === 'scatter' ? '汇聚圣诞树' : '散开星河');
         btnScatter.classList.toggle('active', mode === 'scatter');
-        btnTextMorph.textContent = mode === 'text' ? '🎄 变回圣诞树' : '💬 粒子文字';
+        Icons.set(btnTextMorph, mode === 'text' ? 'christmas-tree' : 'typography', mode === 'text' ? '变回圣诞树' : '粒子文字');
         btnTextMorph.classList.toggle('active', mode === 'text');
       }
 
